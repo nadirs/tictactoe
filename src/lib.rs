@@ -8,19 +8,29 @@ enum MoveMark { X, O }
 enum Player { Computer, Human }
 
 #[derive(Debug, PartialEq)]
+enum HorizontalPos { Left, Center, Right }
+
+#[derive(Debug, PartialEq)]
+enum VerticalPos { Top, Center, Bottom }
+
+#[derive(Debug, PartialEq)]
 struct Board {
-    cells: [Option<MoveMark>; 9]
+    cell: Option<MoveMark>
 }
 
 impl Board {
     pub fn default() -> Board {
         Board {
-            cells: [
-                None, None, None,
-                None, None, None,
-                None, None, None
-            ]
+            cell: None
         }
+    }
+
+    pub fn get_cell_at(&self, x: HorizontalPos, y: VerticalPos) -> Option<MoveMark> {
+        self.cell
+    }
+
+    pub fn set_cell_at(&mut self, x: HorizontalPos, y: VerticalPos, mark: MoveMark) {
+        self.cell = Some(mark);
     }
 }
 
@@ -81,4 +91,22 @@ fn second_is_nought() {
     let (_, _) = game.fetch_move();
     let (_, second_mark) = game.fetch_move();
     assert_eq!(second_mark, MoveMark::O);
+}
+
+#[test]
+fn a_board_cell_starts_empty() {
+    let game = Game::default();
+    let board = &game.board;
+    let cell = board.get_cell_at(HorizontalPos::Left, VerticalPos::Top);
+    assert_eq!(cell, None);
+}
+
+#[test]
+fn can_mark_a_board_cell() {
+    let game = Game::default();
+    let mut board = game.board;
+    let mark = MoveMark::X;
+    board.set_cell_at(HorizontalPos::Center, VerticalPos::Center, mark);
+    let cell = board.get_cell_at(HorizontalPos::Center, VerticalPos::Center);
+    assert_eq!(cell, Some(mark));
 }
