@@ -1,7 +1,7 @@
 use std::iter::*;
 use std::vec::IntoIter;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 enum MoveMark { X, O }
 
 #[derive(Debug, PartialEq)]
@@ -24,12 +24,11 @@ impl Board {
     }
 }
 
-#[derive(Debug, PartialEq)]
 struct Game {
     player_1: Player,
     player_2: Player,
     board: Board,
-    current_turn: MoveMark
+    turns: Cycle<IntoIter<MoveMark>>
 }
 
 type BoardCell = usize;
@@ -40,18 +39,16 @@ impl Game {
             player_1: Player::Computer,
             player_2: Player::Computer,
             board: Board::default(),
-            current_turn: MoveMark::X
+            turns: Game::turns()
         }
     }
 
+    pub fn turns() -> Cycle<IntoIter<MoveMark>> {
+        vec![MoveMark::X, MoveMark::O].into_iter().cycle()
+    }
+
     pub fn next_mark(&mut self) -> MoveMark {
-        if self.current_turn == MoveMark::X {
-            self.current_turn = MoveMark::O;
-            MoveMark::X
-        } else {
-            self.current_turn = MoveMark::X;
-            MoveMark::O
-        }
+        self.turns.next().unwrap()
     }
 
     pub fn fetch_move(&mut self) -> (BoardCell, MoveMark) {
