@@ -1,5 +1,6 @@
 use std::iter::*;
 use std::vec::IntoIter;
+use std::collections::HashMap;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum MoveMark { X, O }
@@ -7,30 +8,30 @@ enum MoveMark { X, O }
 #[derive(Debug, PartialEq)]
 enum Player { Computer, Human }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, Hash, PartialEq)]
 enum HorizontalPos { Left, Center, Right }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, Hash, PartialEq)]
 enum VerticalPos { Top, Center, Bottom }
 
 #[derive(Debug, PartialEq)]
 struct Board {
-    cell: Option<MoveMark>
+    cells: HashMap<(HorizontalPos, VerticalPos), MoveMark>
 }
 
 impl Board {
     pub fn default() -> Board {
         Board {
-            cell: None
+            cells: HashMap::new()
         }
     }
 
-    pub fn get_cell_at(&self, x: HorizontalPos, y: VerticalPos) -> Option<MoveMark> {
-        self.cell
+    pub fn get_cell_at(&self, x: HorizontalPos, y: VerticalPos) -> Option<&MoveMark> {
+        self.cells.get(&(x, y))
     }
 
     pub fn set_cell_at(&mut self, x: HorizontalPos, y: VerticalPos, mark: MoveMark) {
-        self.cell = Some(mark);
+        self.cells.insert((x, y), mark);
     }
 }
 
@@ -108,5 +109,42 @@ fn can_mark_a_board_cell() {
     let mark = MoveMark::X;
     board.set_cell_at(HorizontalPos::Center, VerticalPos::Center, mark);
     let cell = board.get_cell_at(HorizontalPos::Center, VerticalPos::Center);
-    assert_eq!(cell, Some(mark));
+    assert_eq!(cell, Some(&mark));
+}
+
+#[test]
+fn can_mark_two_board_cells_and_get_back_the_correct_marks() {
+    let game = Game::default();
+    let mut board = game.board;
+    board.set_cell_at(HorizontalPos::Center, VerticalPos::Center, MoveMark::X);
+    board.set_cell_at(HorizontalPos::Left, VerticalPos::Center, MoveMark::O);
+    let first_cell = board.get_cell_at(HorizontalPos::Center, VerticalPos::Center);
+    let second_cell = board.get_cell_at(HorizontalPos::Left, VerticalPos::Center);
+    assert_eq!(first_cell, Some(&MoveMark::X));
+    assert_eq!(second_cell, Some(&MoveMark::O));
+}
+
+#[test]
+fn can_mark_all_board_cells_and_get_back_the_correct_marks() {
+    let game = Game::default();
+    let mut board = game.board;
+    board.set_cell_at(HorizontalPos::Left, VerticalPos::Top, MoveMark::X);
+    board.set_cell_at(HorizontalPos::Left, VerticalPos::Center, MoveMark::O);
+    board.set_cell_at(HorizontalPos::Left, VerticalPos::Bottom, MoveMark::X);
+    board.set_cell_at(HorizontalPos::Center, VerticalPos::Top, MoveMark::X);
+    board.set_cell_at(HorizontalPos::Center, VerticalPos::Center, MoveMark::O);
+    board.set_cell_at(HorizontalPos::Center, VerticalPos::Bottom, MoveMark::X);
+    board.set_cell_at(HorizontalPos::Right, VerticalPos::Top, MoveMark::O);
+    board.set_cell_at(HorizontalPos::Right, VerticalPos::Center, MoveMark::X);
+    board.set_cell_at(HorizontalPos::Right, VerticalPos::Bottom, MoveMark::O);
+
+    assert_eq!(board.get_cell_at(HorizontalPos::Left, VerticalPos::Top), Some(&MoveMark::X));
+    assert_eq!(board.get_cell_at(HorizontalPos::Left, VerticalPos::Center), Some(&MoveMark::O));
+    assert_eq!(board.get_cell_at(HorizontalPos::Left, VerticalPos::Bottom), Some(&MoveMark::X));
+    assert_eq!(board.get_cell_at(HorizontalPos::Center, VerticalPos::Top), Some(&MoveMark::X));
+    assert_eq!(board.get_cell_at(HorizontalPos::Center, VerticalPos::Center), Some(&MoveMark::O));
+    assert_eq!(board.get_cell_at(HorizontalPos::Center, VerticalPos::Bottom), Some(&MoveMark::X));
+    assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Top), Some(&MoveMark::O));
+    assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Center), Some(&MoveMark::X));
+    assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Bottom), Some(&MoveMark::O));
 }
