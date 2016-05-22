@@ -3,4 +3,8 @@ name = "tictactoe"
 version = "0.1.0"
 authors = ["Nadir Sampaoli <nadirsampaoli@gmail.com>"]
 
+[lib]
+name = "tictactoe"
+path = "src/lib.rs"
+
 [dependencies]
