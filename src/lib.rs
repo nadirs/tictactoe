@@ -74,11 +74,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
-        assert!(true)
-    }
-
-    #[test]
     fn default_computer_vs_computer() {
         let game = Game::default();
         assert_eq!(game.player_1, Player::Computer);
