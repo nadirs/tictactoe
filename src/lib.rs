@@ -8,10 +8,10 @@ enum MoveMark { X, O }
 #[derive(Debug, PartialEq)]
 enum Player { Computer, Human }
 
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 enum HorizontalPos { Left, Center, Right }
 
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 enum VerticalPos { Top, Center, Bottom }
 
 #[derive(Debug, PartialEq)]
@@ -31,7 +31,9 @@ impl Board {
     }
 
     pub fn set_cell_at(&mut self, x: HorizontalPos, y: VerticalPos, mark: MoveMark) {
-        self.cells.insert((x, y), mark);
+        if let None = self.get_cell_at(x.clone(), y.clone()) {
+            self.cells.insert((x, y), mark);
+        }
     }
 }
 
@@ -147,4 +149,13 @@ fn can_mark_all_board_cells_and_get_back_the_correct_marks() {
     assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Top), Some(&MoveMark::O));
     assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Center), Some(&MoveMark::X));
     assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Bottom), Some(&MoveMark::O));
+}
+
+#[test]
+fn cannot_overwrite_a_marked_cell() {
+    let game = Game::default();
+    let mut board = game.board;
+    board.set_cell_at(HorizontalPos::Left, VerticalPos::Top, MoveMark::X);
+    board.set_cell_at(HorizontalPos::Left, VerticalPos::Top, MoveMark::O);
+    assert_eq!(board.get_cell_at(HorizontalPos::Left, VerticalPos::Top), Some(&MoveMark::X));
 }
