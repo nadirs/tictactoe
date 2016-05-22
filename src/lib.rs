@@ -96,11 +96,19 @@ mod tests {
     }
 
     #[test]
-    fn a_board_cell_starts_empty() {
+    fn all_board_cells_start_empty() {
         let game = Game::default();
         let board = &game.board;
-        let cell = board.get_cell_at(HorizontalPos::Left, VerticalPos::Top);
-        assert_eq!(cell, None);
+
+        assert_eq!(board.get_cell_at(HorizontalPos::Left, VerticalPos::Top), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Left, VerticalPos::Center), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Left, VerticalPos::Bottom), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Center, VerticalPos::Top), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Center, VerticalPos::Center), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Center, VerticalPos::Bottom), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Top), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Center), None);
+        assert_eq!(board.get_cell_at(HorizontalPos::Right, VerticalPos::Bottom), None);
     }
 
     #[test]
