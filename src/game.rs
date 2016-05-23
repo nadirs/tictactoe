@@ -47,13 +47,17 @@ pub struct Game {
 type BoardCell = usize;
 
 impl Game {
-    pub fn default() -> Game {
+    pub fn new(p1: Player, p2: Player) -> Game {
         Game {
-            player_1: Player::Computer,
-            player_2: Player::Computer,
+            player_1: p1,
+            player_2: p2,
             board: Board::default(),
             turns: Game::turns()
         }
+    }
+
+    pub fn default() -> Game {
+        Game::new(Player::Computer, Player::Computer)
     }
 
     fn turns() -> Cycle<IntoIter<MoveMark>> {
@@ -86,6 +90,25 @@ mod tests {
         let game = Game::default();
         assert_eq!(game.player_1, Player::Computer);
         assert_eq!(game.player_2, Player::Computer);
+    }
+
+    #[test]
+    fn can_specify_game_players() {
+        {
+            let game = Game::new(Player::Human, Player::Computer);
+            assert_eq!(game.player_1, Player::Human);
+            assert_eq!(game.player_2, Player::Computer);
+        }
+        {
+            let game = Game::new(Player::Computer, Player::Human);
+            assert_eq!(game.player_1, Player::Computer);
+            assert_eq!(game.player_2, Player::Human);
+        }
+        {
+            let game = Game::new(Player::Human, Player::Human);
+            assert_eq!(game.player_1, Player::Human);
+            assert_eq!(game.player_2, Player::Human);
+        }
     }
 
     #[test]
