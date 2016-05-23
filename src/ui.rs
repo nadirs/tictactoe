@@ -11,6 +11,22 @@ impl Ui {
         }
     }
 
+    fn parse_game_players(&self, input: &str) -> Result<(Player, Player), String> {
+        match input {
+            "1" => Ok((Player::Human, Player::Computer)),
+            "2" => Ok((Player::Human, Player::Human)),
+            "3" => Ok((Player::Computer, Player::Computer)),
+            _ => Err(["Unable to parse game players from string index:", input].join(" ")),
+        }
+    }
+
+    pub fn show_board(&self) -> String {
+        let rows: Vec<String> = vertical_positions().into_iter().map(|y| {
+            self.show_row(y)
+        }).collect();
+        rows.join("\n-----\n")
+    }
+
     fn show_cell(&self, x: HorizontalPos, y: VerticalPos) -> String {
         let cell = self.game.board.get_cell_at(x, y);
         match cell {
@@ -26,13 +42,6 @@ impl Ui {
                 self.show_cell(x, y)
             }).collect();
         cells.join("|")
-    }
-
-    pub fn show_board(&self) -> String {
-        let rows: Vec<String> = vertical_positions().into_iter().map(|y| {
-            self.show_row(y)
-        }).collect();
-        rows.join("\n-----\n")
     }
 }
 
@@ -84,5 +93,42 @@ mod tests {
         let ui = Ui::default();
         let shown_board = ui.show_board();
         assert_eq!(shown_board, " | | \n-----\n | | \n-----\n | | ");
+    }
+
+    #[test]
+    fn parse_valid_string_index_into_valid_game_players() {
+        let ui = Ui::default();
+        {
+            let players = ui.parse_game_players("1").expect("Unable to parse game players from string index");
+            assert_eq!(players, (Player::Human, Player::Computer));
+        }
+        {
+            let players = ui.parse_game_players("2").expect("Unable to parse game players from string index");
+            assert_eq!(players, (Player::Human, Player::Human));
+        }
+        {
+            let players = ui.parse_game_players("3").expect("Unable to parse game players from string index");
+            assert_eq!(players, (Player::Computer, Player::Computer));
+        }
+    }
+
+    #[test]
+    fn parse_invalid_string_index_into_err() {
+        let ui = Ui::default();
+        {
+            let input = "foobar";
+            let err = ui.parse_game_players(input);
+            assert_eq!(err, Err("Unable to parse game players from string index: foobar".to_string()));
+        }
+        {
+            let input = "";
+            let err = ui.parse_game_players(input);
+            assert_eq!(err, Err("Unable to parse game players from string index: ".to_string()));
+        }
+        {
+            let input = "1 would have been 'fine' if I stopped at the first \"char\"";
+            let err = ui.parse_game_players(input);
+            assert_eq!(err, Err("Unable to parse game players from string index: 1 would have been 'fine' if I stopped at the first \"char\"".to_string()));
+        }
     }
 }
